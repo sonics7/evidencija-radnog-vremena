@@ -1,0 +1,8 @@
+node_modules/
+client/node_modules/
+client/dist/
+server/node_modules/
+server/data/app.db
+server/data/app.db-shm
+server/data/app.db-wal
+server/ADMIN_PASSWORD.txt
