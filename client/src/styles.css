@@ -643,6 +643,23 @@ td {
   gap: 0.8rem;
 }
 
+.time-field-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.time-field-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.now-btn {
+  flex-shrink: 0;
+  padding: 0.45rem 0.6rem;
+  white-space: nowrap;
+}
+
 .checkbox-row {
   flex-direction: row;
   align-items: center;

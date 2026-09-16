@@ -193,21 +193,29 @@ function TimeField({ label, value, onChange, disabled, required }) {
     onChange(formatted);
   };
 
+  const setNow = () => {
+    const now = new Date();
+    onChange(`${pad(now.getHours())}:${pad(now.getMinutes())}`);
+  };
+
   return (
     <label>
       {label}
-      <input
-        type="text"
-        inputMode="numeric"
-        placeholder="HH:MM"
-        pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
-        title="Unesite vrijeme u 24-satnom formatu, npr. 08:00 ili 16:30"
-        maxLength={5}
-        value={value}
-        disabled={disabled}
-        required={required}
-        onChange={handleChange}
-      />
+      <div className="time-field-row">
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="HH:MM"
+          pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          title="Unesite vrijeme u 24-satnom formatu, npr. 08:00 ili 16:30"
+          maxLength={5}
+          value={value}
+          disabled={disabled}
+          required={required}
+          onChange={handleChange}
+        />
+        <button type="button" className="mini now-btn" disabled={disabled} onClick={setNow}>Sada</button>
+      </div>
     </label>
   );
 }
