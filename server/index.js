@@ -567,6 +567,26 @@ app.patch('/api/auth/me', authRequired, (req, res) => {
   return res.json({ message: 'Podaci su spremljeni.', user: getUserSafe(updatedUser) });
 });
 
+app.post('/api/auth/change-password', authRequired, (req, res) => {
+  const currentPassword = typeof req.body.currentPassword === 'string' ? req.body.currentPassword : '';
+  const newPassword = typeof req.body.newPassword === 'string' ? req.body.newPassword : '';
+  const confirmPassword = typeof req.body.confirmPassword === 'string' ? req.body.confirmPassword : '';
+
+  if (!bcrypt.compareSync(currentPassword, req.user.password_hash)) {
+    return res.status(400).json({ message: 'Trenutna lozinka nije ispravna.' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'Nova lozinka mora imati barem 6 znakova.' });
+  }
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: 'Nova lozinka i potvrda lozinke se ne podudaraju.' });
+  }
+
+  const passwordHash = bcrypt.hashSync(newPassword, 10);
+  db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).run(passwordHash, req.user.id);
+  return res.json({ message: 'Lozinka je uspješno promijenjena.' });
+});
+
 app.get('/api/users', authRequired, adminRequired, (req, res) => {
   const users = db.prepare(`
     SELECT id, username, full_name, role, status, created_at

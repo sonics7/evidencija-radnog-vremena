@@ -685,13 +685,15 @@ td {
   align-items: center;
 }
 
-.profile-export {
+.profile-export,
+.profile-password {
   margin-top: 1.4rem;
   padding-top: 1.2rem;
   border-top: 1px solid var(--input-border);
 }
 
-.profile-export h4 {
+.profile-export h4,
+.profile-password h4 {
   margin: 0 0 0.3rem;
 }
 

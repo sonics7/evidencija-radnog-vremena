@@ -450,10 +450,26 @@ function ProfileModal({ user, onClose, onSave, saving, defaultMonth, onShowToast
   const [exportMonth, setExportMonth] = useState(defaultMonth);
   const [exportFormat, setExportFormat] = useState('excel');
   const [exporting, setExporting] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
     await onSave(fullName);
+  };
+
+  const submitPasswordChange = async (event) => {
+    event.preventDefault();
+    setChangingPassword(true);
+    try {
+      const response = await api('/api/auth/change-password', { method: 'POST', body: passwordForm });
+      onShowToast?.(response.message, 'success');
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      onShowToast?.(error.message, 'error');
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const downloadExport = async () => {
@@ -503,6 +519,27 @@ function ProfileModal({ user, onClose, onSave, saving, defaultMonth, onShowToast
             <button type="submit" className="primary" disabled={saving}>Spremi</button>
           </div>
         </form>
+        <div className="profile-password">
+          <h4>Promjena lozinke</h4>
+          <form className="modal-form" onSubmit={submitPasswordChange}>
+            <label>
+              Trenutna lozinka
+              <input type="password" value={passwordForm.currentPassword} onChange={(event) => setPasswordForm((prev) => ({ ...prev, currentPassword: event.target.value }))} required />
+            </label>
+            <label>
+              Nova lozinka
+              <input type="password" value={passwordForm.newPassword} onChange={(event) => setPasswordForm((prev) => ({ ...prev, newPassword: event.target.value }))} required minLength={6} />
+            </label>
+            <label>
+              Potvrda nove lozinke
+              <input type="password" value={passwordForm.confirmPassword} onChange={(event) => setPasswordForm((prev) => ({ ...prev, confirmPassword: event.target.value }))} required minLength={6} />
+            </label>
+            <div className="modal-actions">
+              <span />
+              <button type="submit" className="primary" disabled={changingPassword}>{changingPassword ? 'Spremanje...' : 'Promijeni lozinku'}</button>
+            </div>
+          </form>
+        </div>
         <div className="profile-export">
           <h4>Izvoz evidencije</h4>
           <p className="muted">Preuzmi mjesečni izvještaj u Excel ili PDF formatu.</p>
