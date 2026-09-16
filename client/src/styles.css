@@ -46,6 +46,10 @@
   --toast-shadow: rgba(9, 23, 39, 0.16);
   --center-message-color: #526477;
   --holiday-name-color: #b42318;
+  --mini-bg: #eff4ff;
+  --mini-color: #1d4ed8;
+  --mini-danger-bg: #fee2e2;
+  --mini-danger-color: #b42318;
 }
 
 [data-theme='dark'] {
@@ -90,6 +94,10 @@
   --toast-shadow: rgba(0, 0, 0, 0.5);
   --center-message-color: #93a3b8;
   --holiday-name-color: #ff8a80;
+  --mini-bg: #1c2b46;
+  --mini-color: #8fb4ff;
+  --mini-danger-bg: #3a1f22;
+  --mini-danger-color: #ff8a80;
 }
 
 
@@ -192,15 +200,15 @@ p {
 
 .mini {
   padding: 0.45rem 0.7rem;
-  background: #eff4ff;
-  color: #1d4ed8;
+  background: var(--mini-bg);
+  color: var(--mini-color);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
 .mini.danger {
-  background: #fee2e2;
-  color: #b42318;
+  background: var(--mini-danger-bg);
+  color: var(--mini-danger-color);
 }
 
 .icon-button {
