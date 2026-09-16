@@ -718,6 +718,19 @@ td {
   padding: 0.5rem 0.6rem;
 }
 
+.month-picker {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.month-picker select:first-child {
+  min-width: 8.5rem;
+}
+
+.month-picker select:last-child {
+  min-width: 5rem;
+}
+
 .toast {
   position: fixed;
   top: 1rem;

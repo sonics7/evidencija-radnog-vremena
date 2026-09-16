@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 const dayNames = ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'];
+const monthNamesHr = ['Siječanj', 'Veljača', 'Ožujak', 'Travanj', 'Svibanj', 'Lipanj', 'Srpanj', 'Kolovoz', 'Rujan', 'Listopad', 'Studeni', 'Prosinac'];
 
 function pad(value) {
   return String(value).padStart(2, '0');
@@ -450,6 +451,18 @@ function ProfileModal({ user, onClose, onSave, saving, defaultMonth, onShowToast
   const [exportMonth, setExportMonth] = useState(defaultMonth);
   const [exportFormat, setExportFormat] = useState('excel');
   const [exporting, setExporting] = useState(false);
+  const [exportYear, exportMonthIndex] = exportMonth.split('-').map((part, index) => (index === 1 ? Number(part) - 1 : Number(part)));
+  const exportYearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = currentYear - 2; year <= currentYear + 2; year += 1) {
+      years.push(year);
+    }
+    return years;
+  }, []);
+  const updateExportMonth = (year, monthIndex) => {
+    setExportMonth(`${year}-${pad(monthIndex + 1)}`);
+  };
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [changingPassword, setChangingPassword] = useState(false);
 
@@ -546,7 +559,18 @@ function ProfileModal({ user, onClose, onSave, saving, defaultMonth, onShowToast
           <div className="export-controls">
             <label>
               Mjesec
-              <input type="month" value={exportMonth} onChange={(event) => setExportMonth(event.target.value)} />
+              <div className="month-picker">
+                <select value={exportMonthIndex} onChange={(event) => updateExportMonth(exportYear, Number(event.target.value))}>
+                  {monthNamesHr.map((name, index) => (
+                    <option key={name} value={index}>{name}</option>
+                  ))}
+                </select>
+                <select value={exportYear} onChange={(event) => updateExportMonth(Number(event.target.value), exportMonthIndex)}>
+                  {exportYearOptions.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
             </label>
             <label>
               Format
