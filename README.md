@@ -19,6 +19,12 @@ Sučelje je na hrvatskom jeziku, a autentikacija koristi JWT spremljen u `httpOn
 
 ## Instalacija i pokretanje
 
+### Brzo pokretanje (jedan klik)
+
+Dvoklikom na `Pokreni-aplikaciju.bat` u korijenu projekta automatski se pokreću i backend i frontend (svaki u zasebnom prozoru) te se otvara aplikacija u pregledniku na `http://localhost:5173`. Prozore ostavite otvorene dok koristite aplikaciju; zatvaranjem prozora se servisi gase.
+
+### Ručno pokretanje
+
 Otvorite **dva terminala**.
 
 ### Backend
