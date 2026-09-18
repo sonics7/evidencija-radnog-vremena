@@ -16,8 +16,18 @@ start "Evidencija - Frontend" cmd /k "cd /d ""%APP_DIR%client"" && set PATH=%NOD
 echo Cekam da se frontend pokrene...
 timeout /t 5 /nobreak > nul
 
-echo Otvaram aplikaciju u pregledniku...
-start "" "http://localhost:5173/"
+echo Otvaram aplikaciju u Chrome pregledniku...
+set "CHROME_EXE="
+if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if not defined CHROME_EXE if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if not defined CHROME_EXE if exist "%LocalAppData%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%LocalAppData%\Google\Chrome\Application\chrome.exe"
+
+if defined CHROME_EXE (
+    start "" "%CHROME_EXE%" "http://localhost:5173/"
+) else (
+    echo Chrome nije pronaden na uobicajenim lokacijama, otvaram u zadanom pregledniku.
+    start "" "http://localhost:5173/"
+)
 
 echo.
 echo Aplikacija je pokrenuta. Ne zatvarajte prozore "Evidencija - Backend" i "Evidencija - Frontend" dok koristite aplikaciju.
