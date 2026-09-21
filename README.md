@@ -77,36 +77,30 @@ cd client
 npm run build
 ```
 
-## Deployment na Render.com
+## Deployment na Railway.com
 
-Repozitorij sadrži `render.yaml` (Render Blueprint) koji automatski konfigurira sve potrebno:
-- build: instalira ovisnosti za `server` i `client`, builda frontend (`client/dist`)
-- start: `npm start --prefix server` – backend servira i API i gotov frontend na istom URL-u
-- `NODE_ENV=production` – uključuje `secure` kolačiće (zahtijeva HTTPS, koji Render osigurava automatski)
-- `JWT_SECRET` – generira se automatski kao tajna vrijednost
-
-Trenutno je konfiguriran **besplatni (Free) plan** – bez plaćanja, ali bez trajnog diska (Persistent Disk), pa se SQLite baza i `ADMIN_PASSWORD.txt` brišu kod svakog redeploya (novi build, ručni redeploy, ili buđenje iz mirovanja ne briše bazu – samo pravi redeploy zbog izmjene koda). Dobro za testiranje; za stvarno svakodnevno korištenje s trajnim podacima preporučljivo je prijeći na **Starter** plan (~7$/mj) i dodati Persistent Disk s env varijablom `DATA_DIR=/var/data` (konfiguracija je pripremljena i može se vratiti u `render.yaml` po potrebi).
+Aplikacija je trenutno postavljena na [Railway.com](https://railway.com) koristeći `Dockerfile` iz repozitorija (Node 22, bez potrebe za kompajliranjem nativnih modula – koristi se ugrađeni `node:sqlite`).
 
 Postupak:
-1. Napravi besplatni Render račun na [render.com](https://render.com) (može i preko GitHub prijave).
-2. Poveži svoj GitHub račun s Renderom i odobri pristup repozitoriju.
-3. U Render dashboardu odaberi **New +** → **Blueprint**, izaberi ovaj repozitorij – Render će očitati `render.yaml` i predložiti konfiguraciju.
-4. Potvrdi kreiranje.
-5. Nakon prvog uspješnog deploya, otvori **Logs** tab i pronađi ispisanu administratorsku lozinku.
-6. Aplikacija je dostupna na URL-u koji Render dodijeli, npr. `https://evidencija-radnog-vremena.onrender.com` – radi na računalu i mobitelu, bilo gdje s internetskom vezom.
+1. Napravi besplatni Railway račun (preko GitHub prijave) i poveži repozitorij putem Railway GitHub App-a.
+2. Railway automatski prepoznaje `Dockerfile` i koristi ga za build i pokretanje.
+3. U **Settings → Networking** klikni **Generate Domain** da dobiješ javni `*.up.railway.app` URL (ako već nije generiran).
+4. Provjeri u **Settings → Deploy** da polja "Custom Build Command" i "Custom Start Command" budu **prazna** – u suprotnom Railway zaobilazi `Dockerfile` i koristi stariji, nekompatibilan način pokretanja.
+5. Nakon prvog uspješnog deploya, otvori **Deploy Logs** i pronađi ispisanu administratorsku lozinku (redak "Lozinka: ...").
+6. Aplikacija je dostupna na dodijeljenom URL-u, radi na računalu i mobitelu, bilo gdje s internetskom vezom.
 
-Napomena za besplatni plan: servis se uspava nakon ~15 min neaktivnosti, prvo sljedeće otvaranje traje do 30-ak sekundi dok se probudi.
+Napomena: besplatni Railway plan nema trajni disk (Persistent Volume), pa se SQLite baza i `ADMIN_PASSWORD.txt` brišu kod svakog novog builda (push novog commita). Za trajne podatke potrebno je dodati Railway Volume i env varijablu `DATA_DIR` koja pokazuje na njegovu putanju.
 
-Napomena: ako se u budućnosti frontend hostira na drugoj domeni odvojeno od backenda, potrebno je postaviti env varijablu `ALLOWED_ORIGIN` na backendu (npr. `ALLOWED_ORIGIN=https://moja-domena.com`) da CORS dopusti tu domenu.
+CORS je riješen automatski – backend dopušta zahtjeve s iste domene s koje se poslužuje (nije potrebno ručno postavljati `ALLOWED_ORIGIN` osim ako frontend hostiraš na posebnoj domeni odvojeno od backenda).
 
 ## Mogući kasniji deployment
 
-Aplikacija se kasnije može containerizirati i postaviti online, primjerice pomoću:
-- **Docker**
+Aplikacija se alternativno može postaviti i pomoću:
+- **Render.com** (repozitorij i dalje sadrži `render.yaml` Blueprint kao pripremljenu alternativu)
 - **VPS + Nginx**
-- **Render** ili **Railway**
 
 Za produkciju je preporučljivo:
 - postaviti `JWT_SECRET` kroz environment varijable
 - koristiti HTTPS
 - servirati `client/dist` kroz backend ili zaseban web server
+
