@@ -29,6 +29,9 @@ const adminPasswordPath = path.join(dataDir, 'ADMIN_PASSWORD.txt');
 const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 
 fs.mkdirSync(dataDir, { recursive: true });
+console.log(`[data] DATA_DIR env: ${process.env.DATA_DIR || '(nije postavljen)'}`);
+console.log(`[data] Stvarna putanja baze: ${dbPath}`);
+console.log(`[data] Baza već postoji: ${fs.existsSync(dbPath)}`);
 
 const db = new DatabaseSync(dbPath);
 // WAL nacin rada koristi mmap/shared-memory datoteke koje na nekim
