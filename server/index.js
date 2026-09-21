@@ -523,42 +523,6 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/auth/register', (req, res) => {
-  const username = typeof req.body.username === 'string' ? req.body.username.trim().toLowerCase() : '';
-  const fullName = typeof req.body.fullName === 'string' ? req.body.fullName.trim() : '';
-  const password = typeof req.body.password === 'string' ? req.body.password : '';
-  const confirmPassword = typeof req.body.confirmPassword === 'string' ? req.body.confirmPassword : '';
-
-  if (!username || username.length < 3) {
-    return res.status(400).json({ message: 'Korisničko ime mora imati barem 3 znaka.' });
-  }
-  if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
-    return res.status(400).json({ message: 'Korisničko ime može sadržavati slova, brojeve, točku, crticu i donju crticu.' });
-  }
-  if (!fullName || fullName.length < 3) {
-    return res.status(400).json({ message: 'Potrebno je unijeti ime i prezime.' });
-  }
-  if (password.length < 6) {
-    return res.status(400).json({ message: 'Lozinka mora imati barem 6 znakova.' });
-  }
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Lozinke se ne podudaraju.' });
-  }
-
-  const existingUser = db.prepare(`SELECT id FROM users WHERE username = ?`).get(username);
-  if (existingUser) {
-    return res.status(409).json({ message: 'Korisničko ime je već zauzeto.' });
-  }
-
-  const passwordHash = bcrypt.hashSync(password, 10);
-  db.prepare(`
-    INSERT INTO users (username, full_name, password_hash, role, status)
-    VALUES (?, ?, ?, 'user', 'pending')
-  `).run(username, fullName, passwordHash);
-
-  return res.status(201).json({ message: 'Registracija je uspješna. Pričekajte odobrenje administratora.' });
-});
-
 app.post('/api/auth/login', (req, res) => {
   const username = typeof req.body.username === 'string' ? req.body.username.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';

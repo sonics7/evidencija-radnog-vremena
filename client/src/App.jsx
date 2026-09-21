@@ -123,21 +123,12 @@ function Toast({ toast, onClose }) {
   );
 }
 
-function AuthView({ onLogin, onRegister, loading }) {
-  const [mode, setMode] = useState('login');
+function AuthView({ onLogin, loading }) {
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-  const [registerForm, setRegisterForm] = useState({ username: '', fullName: '', password: '', confirmPassword: '' });
 
   const submitLogin = async (event) => {
     event.preventDefault();
     await onLogin(loginForm);
-  };
-
-  const submitRegister = async (event) => {
-    event.preventDefault();
-    await onRegister(registerForm);
-    setRegisterForm({ username: '', fullName: '', password: '', confirmPassword: '' });
-    setMode('login');
   };
 
   return (
@@ -145,43 +136,17 @@ function AuthView({ onLogin, onRegister, loading }) {
       <div className="auth-card">
         <h1>Evidencija radnog vremena</h1>
         <p className="muted">Jednostavno praćenje radnih sati, godišnjeg odmora i rada od kuće.</p>
-        <div className="auth-tabs">
-          <button type="button" className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Prijava</button>
-          <button type="button" className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Registracija</button>
-        </div>
-        {mode === 'login' ? (
-          <form className="auth-form" onSubmit={submitLogin}>
-            <label>
-              Korisničko ime
-              <input value={loginForm.username} onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))} required />
-            </label>
-            <label>
-              Lozinka
-              <input type="password" value={loginForm.password} onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))} required />
-            </label>
-            <button type="submit" className="primary" disabled={loading}>{loading ? 'Prijava...' : 'Prijavi se'}</button>
-          </form>
-        ) : (
-          <form className="auth-form" onSubmit={submitRegister}>
-            <label>
-              Korisničko ime
-              <input value={registerForm.username} onChange={(event) => setRegisterForm((prev) => ({ ...prev, username: event.target.value }))} required />
-            </label>
-            <label>
-              Ime i prezime
-              <input value={registerForm.fullName} onChange={(event) => setRegisterForm((prev) => ({ ...prev, fullName: event.target.value }))} required />
-            </label>
-            <label>
-              Lozinka
-              <input type="password" value={registerForm.password} onChange={(event) => setRegisterForm((prev) => ({ ...prev, password: event.target.value }))} required />
-            </label>
-            <label>
-              Potvrda lozinke
-              <input type="password" value={registerForm.confirmPassword} onChange={(event) => setRegisterForm((prev) => ({ ...prev, confirmPassword: event.target.value }))} required />
-            </label>
-            <button type="submit" className="primary" disabled={loading}>{loading ? 'Slanje...' : 'Pošalji registraciju'}</button>
-          </form>
-        )}
+        <form className="auth-form" onSubmit={submitLogin}>
+          <label>
+            Korisničko ime
+            <input value={loginForm.username} onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))} required />
+          </label>
+          <label>
+            Lozinka
+            <input type="password" value={loginForm.password} onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))} required />
+          </label>
+          <button type="submit" className="primary" disabled={loading}>{loading ? 'Prijava...' : 'Prijavi se'}</button>
+        </form>
       </div>
     </div>
   );
@@ -734,21 +699,6 @@ export default function App() {
     }
   };
 
-  const handleRegister = async (form) => {
-    setActionLoading(true);
-    try {
-      if (form.password !== form.confirmPassword) {
-        throw new Error('Lozinke se ne podudaraju.');
-      }
-      const response = await api('/api/auth/register', { method: 'POST', body: form });
-      showToast(response.message, 'success');
-    } catch (error) {
-      showToast(error.message, 'error');
-      throw error;
-    } finally {
-      setActionLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     setActionLoading(true);
@@ -867,7 +817,7 @@ export default function App() {
         <button type="button" className="ghost theme-toggle-floating" onClick={toggleTheme}>
           {theme === 'dark' ? '☀️ Svijetli način' : '🌙 Tamni način'}
         </button>
-        <AuthView onLogin={handleLogin} onRegister={handleRegister} loading={actionLoading} />
+        <AuthView onLogin={handleLogin} loading={actionLoading} />
       </>
     );
   }
