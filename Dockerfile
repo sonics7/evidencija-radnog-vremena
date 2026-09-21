@@ -16,5 +16,4 @@ RUN npm run build --prefix client
 ENV NODE_ENV=production
 EXPOSE 4000
 
-CMD ["node", "server/index.js"]# Test trajnosti diska 2026-09-21T13:24:12.5710017+02:00
-# Test trajnosti diska 2 2026-09-21T13:29:47.7217920+02:00
+CMD ["node", "server/index.js"]
