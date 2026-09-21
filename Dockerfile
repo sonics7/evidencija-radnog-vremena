@@ -17,3 +17,4 @@ ENV NODE_ENV=production
 EXPOSE 4000
 
 CMD ["node", "server/index.js"]
+# Test trajnosti 3 (nakon ispravnog mount-anja diska)
