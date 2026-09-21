@@ -31,7 +31,10 @@ const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 fs.mkdirSync(dataDir, { recursive: true });
 
 const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
+// WAL nacin rada koristi mmap/shared-memory datoteke koje na nekim
+// kontejnerskim/mreznim datotecnim sustavima (npr. Railway) uzrokuju
+// segfault, pa koristimo standardni (kompatibilniji) "delete" nacin rada.
+db.pragma('journal_mode = DELETE');
 db.pragma('foreign_keys = ON');
 
 db.exec(`
