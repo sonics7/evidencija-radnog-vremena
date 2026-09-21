@@ -84,15 +84,18 @@ Repozitorij sadrži `render.yaml` (Render Blueprint) koji automatski konfigurira
 - start: `npm start --prefix server` – backend servira i API i gotov frontend na istom URL-u
 - `NODE_ENV=production` – uključuje `secure` kolačiće (zahtijeva HTTPS, koji Render osigurava automatski)
 - `JWT_SECRET` – generira se automatski kao tajna vrijednost
-- `DATA_DIR=/var/data` – SQLite baza i `ADMIN_PASSWORD.txt` spremaju se na trajni disk (Persistent Disk) koji preživljava redeploy
+
+Trenutno je konfiguriran **besplatni (Free) plan** – bez plaćanja, ali bez trajnog diska (Persistent Disk), pa se SQLite baza i `ADMIN_PASSWORD.txt` brišu kod svakog redeploya (novi build, ručni redeploy, ili buđenje iz mirovanja ne briše bazu – samo pravi redeploy zbog izmjene koda). Dobro za testiranje; za stvarno svakodnevno korištenje s trajnim podacima preporučljivo je prijeći na **Starter** plan (~7$/mj) i dodati Persistent Disk s env varijablom `DATA_DIR=/var/data` (konfiguracija je pripremljena i može se vratiti u `render.yaml` po potrebi).
 
 Postupak:
 1. Napravi besplatni Render račun na [render.com](https://render.com) (može i preko GitHub prijave).
-2. Poveži svoj GitHub račun s Renderom i odobri pristup repozitoriju `Evidencija-radnog-vremena`.
+2. Poveži svoj GitHub račun s Renderom i odobri pristup repozitoriju.
 3. U Render dashboardu odaberi **New +** → **Blueprint**, izaberi ovaj repozitorij – Render će očitati `render.yaml` i predložiti konfiguraciju.
-4. Potvrdi kreiranje – servis koristi **Starter** plan (plaćeni, ~7$/mj) jer trajni disk (Persistent Disk) nije dostupan na besplatnom planu, a bez njega bi se baza brisala kod svakog redeploya.
-5. Nakon prvog uspješnog deploya, otvori **Logs** tab i pronađi ispisanu administratorsku lozinku (isto se sprema i u `ADMIN_PASSWORD.txt` na trajnom disku).
+4. Potvrdi kreiranje.
+5. Nakon prvog uspješnog deploya, otvori **Logs** tab i pronađi ispisanu administratorsku lozinku.
 6. Aplikacija je dostupna na URL-u koji Render dodijeli, npr. `https://evidencija-radnog-vremena.onrender.com` – radi na računalu i mobitelu, bilo gdje s internetskom vezom.
+
+Napomena za besplatni plan: servis se uspava nakon ~15 min neaktivnosti, prvo sljedeće otvaranje traje do 30-ak sekundi dok se probudi.
 
 Napomena: ako se u budućnosti frontend hostira na drugoj domeni odvojeno od backenda, potrebno je postaviti env varijablu `ALLOWED_ORIGIN` na backendu (npr. `ALLOWED_ORIGIN=https://moja-domena.com`) da CORS dopusti tu domenu.
 
