@@ -384,6 +384,10 @@ p {
   flex-direction: column;
 }
 
+.legend-toggle {
+  margin-bottom: 0.75rem;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;

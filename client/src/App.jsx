@@ -575,6 +575,7 @@ export default function App() {
   // ostaje netaknut - postavi na true ako je ponovno treba prikazati.
   const SHOW_ADMIN_TAB = false;
   const [activeTab, setActiveTab] = useState('calendar');
+  const [legendOpen, setLegendOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [modalDate, setModalDate] = useState(null);
@@ -889,13 +890,23 @@ export default function App() {
           </section>
 
           <section className="calendar-panel panel">
-            <div className="legend">
-              <span><strong>Radni sati</strong> = radni dan + home office + službeni put + državni praznik</span>
-              <span><strong>GO</strong> = godišnji odmor (računa se posebno kao 1 dan)</span>
-              <span><strong>HO</strong> = home office, automatski 08:00–16:00</span>
-              <span><strong>SP</strong> = službeni put, automatski 08:00–16:00</span>
-              <span><strong>DP</strong> = državni praznik (rad), automatski 08:00–16:00</span>
-            </div>
+            <button
+              type="button"
+              className="ghost mini legend-toggle"
+              onClick={() => setLegendOpen((prev) => !prev)}
+              aria-expanded={legendOpen}
+            >
+              {legendOpen ? 'Sakrij legendu ▲' : 'Legenda ▼'}
+            </button>
+            {legendOpen && (
+              <div className="legend">
+                <span><strong>Radni sati</strong> = radni dan + home office + službeni put + državni praznik</span>
+                <span><strong>GO</strong> = godišnji odmor (računa se posebno kao 1 dan)</span>
+                <span><strong>HO</strong> = home office, automatski 08:00–16:00</span>
+                <span><strong>SP</strong> = službeni put, automatski 08:00–16:00</span>
+                <span><strong>DP</strong> = državni praznik (rad), automatski 08:00–16:00</span>
+              </div>
+            )}
             <div className="calendar-grid">
               <div className="calendar-header week-sum-header">Tjedan</div>
               {dayNames.map((dayName) => <div key={dayName} className="calendar-header">{dayName}</div>)}
