@@ -44,11 +44,12 @@ function chunk(type, data) {
 function drawIcon(size) {
   const pixels = Buffer.alloc(size * size * 4);
   const center = size / 2;
-  const clockRadius = size * 0.34;
+  const clockRadius = size * 0.32;
   const cornerRadius = size * 0.18;
 
-  const hourAngle = -Math.PI / 2 + Math.PI * 0.55; // kazaljka sati (~"10 i nesto")
-  const minuteAngle = -Math.PI / 2 + Math.PI * 1.55; // kazaljka minuta
+  // Klasicna pozicija kazaljki sata: ~10:10 (uobicajeno u satnim logotipovima, jasno se razlikuju)
+  const hourAngle = -Math.PI / 2 + Math.PI * (10 / 6); // kazaljka sati prema "10"
+  const minuteAngle = -Math.PI / 2 + Math.PI * (2 / 6); // kazaljka minuta prema "2" (10 min)
 
   function isInsideRoundedSquare(x, y) {
     const dx = Math.max(Math.abs(x - center) - (center - cornerRadius), 0);
@@ -65,6 +66,17 @@ function drawIcon(size) {
     return Math.hypot(px - cx, py - cy);
   }
 
+  const ringThickness = size * 0.045;
+  const tickLength = size * 0.045;
+  const tickThickness = size * 0.022;
+  const hourLen = clockRadius * 0.5;
+  const minuteLen = clockRadius * 0.78;
+  const hourThickness = size * 0.038;
+  const minuteThickness = size * 0.028;
+
+  // Male oznake na 12/3/6/9 satu (crticama), da lice jasnije izgleda kao sat
+  const tickAngles = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const idx = (y * size + x) * 4;
@@ -74,29 +86,36 @@ function drawIcon(size) {
         const dx = x - center;
         const dy = y - center;
         const dist = Math.hypot(dx, dy);
-        const ringThickness = size * 0.035;
 
         const onRing = Math.abs(dist - clockRadius) <= ringThickness;
 
-        const hourLen = clockRadius * 0.5;
-        const minuteLen = clockRadius * 0.75;
-        const handThickness = size * 0.035;
+        let onTick = false;
+        for (const angle of tickAngles) {
+          const tx = center + Math.cos(angle) * (clockRadius - ringThickness / 2);
+          const ty = center + Math.sin(angle) * (clockRadius - ringThickness / 2);
+          const tx2 = center + Math.cos(angle) * (clockRadius - ringThickness / 2 - tickLength);
+          const ty2 = center + Math.sin(angle) * (clockRadius - ringThickness / 2 - tickLength);
+          if (distToSegment(x, y, tx, ty, tx2, ty2) <= tickThickness) {
+            onTick = true;
+            break;
+          }
+        }
 
         const onHourHand = distToSegment(
           x, y, center, center,
           center + Math.cos(hourAngle) * hourLen,
           center + Math.sin(hourAngle) * hourLen
-        ) <= handThickness;
+        ) <= hourThickness;
 
         const onMinuteHand = distToSegment(
           x, y, center, center,
           center + Math.cos(minuteAngle) * minuteLen,
           center + Math.sin(minuteAngle) * minuteLen
-        ) <= handThickness * 0.85;
+        ) <= minuteThickness;
 
-        const onCenterDot = dist <= size * 0.03;
+        const onCenterDot = dist <= size * 0.035;
 
-        color = (onRing || onHourHand || onMinuteHand || onCenterDot) ? FG : BG;
+        color = (onRing || onTick || onHourHand || onMinuteHand || onCenterDot) ? FG : BG;
       }
 
       pixels[idx] = color[0];
