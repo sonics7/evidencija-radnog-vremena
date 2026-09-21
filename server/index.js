@@ -524,12 +524,12 @@ app.get('/api/health', (req, res) => {
 });
 
 app.post('/api/auth/login', (req, res) => {
-  const username = typeof req.body.username === 'string' ? req.body.username.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
-  const user = db.prepare(`SELECT * FROM users WHERE username = ?`).get(username);
+  // Aplikacija ima samo jednog korisnika, pa prijava trazi samo lozinku.
+  const user = db.prepare(`SELECT * FROM users LIMIT 1`).get();
 
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
-    return res.status(401).json({ message: 'Neispravno korisničko ime ili lozinka.' });
+    return res.status(401).json({ message: 'Neispravna lozinka.' });
   }
 
   if (user.status === 'pending') {

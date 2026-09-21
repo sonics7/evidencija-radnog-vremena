@@ -124,11 +124,11 @@ function Toast({ toast, onClose }) {
 }
 
 function AuthView({ onLogin, loading }) {
-  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [password, setPassword] = useState('');
 
   const submitLogin = async (event) => {
     event.preventDefault();
-    await onLogin(loginForm);
+    await onLogin({ password });
   };
 
   return (
@@ -138,16 +138,13 @@ function AuthView({ onLogin, loading }) {
         <p className="muted">Jednostavno praćenje radnih sati, godišnjeg odmora i rada od kuće.</p>
         <form className="auth-form" onSubmit={submitLogin}>
           <label>
-            Korisničko ime
-            <input value={loginForm.username} onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))} required />
-          </label>
-          <label>
             Lozinka
-            <input type="password" value={loginForm.password} onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))} required />
+            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required autoFocus />
           </label>
           <button type="submit" className="primary" disabled={loading}>{loading ? 'Prijava...' : 'Prijavi se'}</button>
         </form>
       </div>
+
     </div>
   );
 }
