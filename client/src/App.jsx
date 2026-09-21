@@ -571,6 +571,9 @@ export default function App() {
   }, [theme]);
 
   const toggleTheme = () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  // Gumb "Administracija" je trenutno skriven na zahtjev korisnika, ali kod
+  // ostaje netaknut - postavi na true ako je ponovno treba prikazati.
+  const SHOW_ADMIN_TAB = false;
   const [activeTab, setActiveTab] = useState('calendar');
   const [toast, setToast] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -811,8 +814,8 @@ export default function App() {
     return (
       <>
         <Toast toast={toast} onClose={closeToast} />
-        <button type="button" className="ghost theme-toggle-floating" onClick={toggleTheme}>
-          {theme === 'dark' ? '☀️ Svijetli način' : '🌙 Tamni način'}
+        <button type="button" className="icon-button theme-toggle-floating" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Prebaci na svijetli način' : 'Prebaci na tamni način'} title={theme === 'dark' ? 'Svijetli način' : 'Tamni način'}>
+          {theme === 'dark' ? '☀️' : '🌙'}
         </button>
         <AuthView onLogin={handleLogin} loading={actionLoading} />
       </>
@@ -828,14 +831,14 @@ export default function App() {
           <p className="muted">Prijavljeni korisnik: <strong>{user.full_name}</strong> ({user.username})</p>
         </div>
         <div className="topbar-actions">
-          {user.role === 'admin' && (
+          {user.role === 'admin' && SHOW_ADMIN_TAB && (
             <div className="tab-switcher">
               <button type="button" className={activeTab === 'calendar' ? 'active' : ''} onClick={() => setActiveTab('calendar')}>Kalendar</button>
               <button type="button" className={activeTab === 'admin' ? 'active' : ''} onClick={() => setActiveTab('admin')}>Administracija</button>
             </div>
           )}
-          <button type="button" className="ghost" onClick={toggleTheme}>
-            {theme === 'dark' ? '☀️ Svijetli način' : '🌙 Tamni način'}
+          <button type="button" className="icon-button theme-toggle-icon" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Prebaci na svijetli način' : 'Prebaci na tamni način'} title={theme === 'dark' ? 'Svijetli način' : 'Tamni način'}>
+            {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           <button type="button" className="ghost" onClick={() => setProfileModalOpen(true)}>Moj profil</button>
           <button type="button" className="ghost" onClick={handleLogout}>Odjava</button>
@@ -847,14 +850,14 @@ export default function App() {
 
       {mobileMenuOpen && (
         <div className="mobile-menu panel">
-          {user.role === 'admin' && (
+          {user.role === 'admin' && SHOW_ADMIN_TAB && (
             <div className="tab-switcher">
               <button type="button" className={activeTab === 'calendar' ? 'active' : ''} onClick={() => { setActiveTab('calendar'); setMobileMenuOpen(false); }}>Kalendar</button>
               <button type="button" className={activeTab === 'admin' ? 'active' : ''} onClick={() => { setActiveTab('admin'); setMobileMenuOpen(false); }}>Administracija</button>
             </div>
           )}
-          <button type="button" className="ghost" onClick={() => { toggleTheme(); setMobileMenuOpen(false); }}>
-            {theme === 'dark' ? '☀️ Svijetli način' : '🌙 Tamni način'}
+          <button type="button" className="icon-button theme-toggle-icon" onClick={() => { toggleTheme(); setMobileMenuOpen(false); }} aria-label={theme === 'dark' ? 'Prebaci na svijetli način' : 'Prebaci na tamni način'} title={theme === 'dark' ? 'Svijetli način' : 'Tamni način'}>
+            {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           <button type="button" className="ghost" onClick={() => { setProfileModalOpen(true); setMobileMenuOpen(false); }}>Moj profil</button>
           <button type="button" className="ghost" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>Odjava</button>
@@ -964,6 +967,7 @@ export default function App() {
           onShowToast={showToast}
         />
       )}
+      <footer className="app-footer">Evidencija radnog vremena - Spar</footer>
     </div>
   );
 }

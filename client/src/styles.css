@@ -234,6 +234,17 @@ p {
   z-index: 10;
 }
 
+.theme-toggle-icon {
+  border-radius: 999px;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
 .auth-card,
 .panel,
 .modal-card {
