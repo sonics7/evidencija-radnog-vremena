@@ -77,27 +77,55 @@ cd client
 npm run build
 ```
 
-## Deployment na Railway.com
+## Deployment na Oracle Cloud (Always Free)
 
-Aplikacija je trenutno postavljena na [Railway.com](https://railway.com) koristeći `Dockerfile` iz repozitorija (Node 22, bez potrebe za kompajliranjem nativnih modula – koristi se ugrađeni `node:sqlite`).
+Aplikacija je trenutno postavljena na besplatnom **Oracle Cloud "Always Free"** ARM VM-u, koristeći `Dockerfile` iz repozitorija (Node 22, bez potrebe za kompajliranjem nativnih modula – koristi se ugrađeni `node:sqlite`) te **Caddy** kao reverse proxy s automatskim HTTPS certifikatom.
 
-Postupak:
-1. Napravi besplatni Railway račun (preko GitHub prijave) i poveži repozitorij putem Railway GitHub App-a.
-2. Railway automatski prepoznaje `Dockerfile` i koristi ga za build i pokretanje.
-3. U **Settings → Networking** klikni **Generate Domain** da dobiješ javni `*.up.railway.app` URL (ako već nije generiran).
-4. Provjeri u **Settings → Deploy** da polja "Custom Build Command" i "Custom Start Command" budu **prazna** – u suprotnom Railway zaobilazi `Dockerfile` i koristi stariji, nekompatibilan način pokretanja.
-5. Nakon prvog uspješnog deploya, otvori **Deploy Logs** i pronađi ispisanu administratorsku lozinku (redak "Lozinka: ...").
-6. Aplikacija je dostupna na dodijeljenom URL-u, radi na računalu i mobitelu, bilo gdje s internetskom vezom.
+Trenutna produkcija: **https://130-61-129-94.sslip.io** (SSH pristup: `ssh -i <ključ> ubuntu@130.61.129.94`)
 
-Napomena: besplatni Railway plan nema trajni disk (Persistent Volume), pa se SQLite baza i `ADMIN_PASSWORD.txt` brišu kod svakog novog builda (push novog commita). Za trajne podatke potrebno je dodati Railway Volume i env varijablu `DATA_DIR` koja pokazuje na njegovu putanju.
+Postupak (za buduću referencu / eventualno ponovno postavljanje):
+1. Napravi Oracle Cloud "Always Free" račun i pokreni Compute instancu (Ubuntu, shape `VM.Standard.A1.Flex`, ARM64) unutar VCN-a s javnim IPv4.
+2. U OCI **Security List** otvori ingress pravila za portove **80** i **443** (`0.0.0.0/0`).
+3. **Bitno:** Oracle-ove Ubuntu slike imaju i vlastiti OS-razinski `iptables` firewall (odvojen od OCI Security Liste) koji po defaultu blokira sve osim SSH-a. Potrebno je dodati pravila i tamo: `sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT`, isto za 443, pa `sudo netfilter-persistent save`.
+4. Instaliraj Docker Engine i Caddy (službeni apt repozitoriji).
+5. `git clone` repozitorij na server, `docker build -t evidencija-app .`
+6. Pokreni kontejner vezan samo na localhost (Caddy je jedina javna točka): 
+   ```bash
+   docker run -d --name evidencija --restart unless-stopped \
+     -p 127.0.0.1:4000:4000 -v evidencija-data:/data \
+     -e DATA_DIR=/data -e NODE_ENV=production -e JWT_SECRET=<slucajni-string> \
+     evidencija-app
+   ```
+7. Postavi `/etc/caddy/Caddyfile`:
+   ```
+   <ip-s-crticama>.sslip.io {
+     reverse_proxy localhost:4000
+   }
+   ```
+   (npr. IP `130.61.129.94` → `130-61-129-94.sslip.io`). **sslip.io** je besplatna wildcard DNS usluga bez registracije – automatski razrješava na IP upisan u sam naziv domene. Caddy sam ishodi i obnavlja Let's Encrypt certifikat.
+8. Nakon prvog pokretanja, provjeri logove kontejnera (`docker logs evidencija`) za ispisanu administratorsku lozinku.
 
-CORS je riješen automatski – backend dopušta zahtjeve s iste domene s koje se poslužuje (nije potrebno ručno postavljati `ALLOWED_ORIGIN` osim ako frontend hostiraš na posebnoj domeni odvojeno od backenda).
+Podaci su trajni zahvaljujući named Docker volumenu (`evidencija-data` mapiran na `/data`) – preživljavaju rebuild/redeploy kontejnera. I `docker` i `caddy` systemd servisi su omogućeni (`enabled`), a kontejner ima `--restart unless-stopped`, pa sve preživljava i restart same VM instance.
+
+Ažuriranje aplikacije (nema automatskog CI/CD-a, ručni postupak na serveru):
+```bash
+cd ~/app && git pull
+docker build -t evidencija-app .
+docker stop evidencija && docker rm evidencija
+docker run -d --name evidencija --restart unless-stopped \
+  -p 127.0.0.1:4000:4000 -v evidencija-data:/data \
+  -e DATA_DIR=/data -e NODE_ENV=production -e JWT_SECRET=<isti-secret-kao-prije> \
+  evidencija-app
+```
+
+CORS je riješen automatski – backend dopušta zahtjeve s iste domene s koje se poslužuje.
 
 ## Mogući kasniji deployment
 
 Aplikacija se alternativno može postaviti i pomoću:
 - **Render.com** (repozitorij i dalje sadrži `render.yaml` Blueprint kao pripremljenu alternativu)
 - **VPS + Nginx**
+- Bilo koji drugi Docker-kompatibilan hosting (isti `Dockerfile` radi na amd64 i arm64)
 
 Za produkciju je preporučljivo:
 - postaviti `JWT_SECRET` kroz environment varijable
