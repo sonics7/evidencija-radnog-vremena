@@ -1,4 +1,4 @@
-FROM node:18-bookworm-slim
+FROM --platform=linux/amd64 node:18-bookworm-slim
 
 # Alati potrebni za kompajliranje nativnog modula better-sqlite3
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -11,6 +11,11 @@ WORKDIR /app
 
 COPY server/package*.json ./server/
 COPY client/package*.json ./client/
+
+# Prisili kompajliranje better-sqlite3 iz izvornog koda u OVOM tocno kontejneru,
+# umjesto koristenja gotovog (prebuilt) binarnog paketa koji moze biti
+# nekompatibilan s arhitekturom na kojoj se kontejner stvarno pokrece.
+ENV npm_config_build_from_source=true
 
 RUN npm install --prefix server \
     && npm install --prefix client
