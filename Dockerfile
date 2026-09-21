@@ -29,3 +29,4 @@ ENV NODE_ENV=production
 EXPOSE 4000
 
 CMD ["node", "server/index.js"]
+# Force rebuild - Railway custom start/build command override removed 2026-09-21T11:04:16.5189599+02:00
