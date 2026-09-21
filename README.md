@@ -77,6 +77,25 @@ cd client
 npm run build
 ```
 
+## Deployment na Render.com
+
+Repozitorij sadrži `render.yaml` (Render Blueprint) koji automatski konfigurira sve potrebno:
+- build: instalira ovisnosti za `server` i `client`, builda frontend (`client/dist`)
+- start: `npm start --prefix server` – backend servira i API i gotov frontend na istom URL-u
+- `NODE_ENV=production` – uključuje `secure` kolačiće (zahtijeva HTTPS, koji Render osigurava automatski)
+- `JWT_SECRET` – generira se automatski kao tajna vrijednost
+- `DATA_DIR=/var/data` – SQLite baza i `ADMIN_PASSWORD.txt` spremaju se na trajni disk (Persistent Disk) koji preživljava redeploy
+
+Postupak:
+1. Napravi besplatni Render račun na [render.com](https://render.com) (može i preko GitHub prijave).
+2. Poveži svoj GitHub račun s Renderom i odobri pristup repozitoriju `Evidencija-radnog-vremena`.
+3. U Render dashboardu odaberi **New +** → **Blueprint**, izaberi ovaj repozitorij – Render će očitati `render.yaml` i predložiti konfiguraciju.
+4. Potvrdi kreiranje – servis koristi **Starter** plan (plaćeni, ~7$/mj) jer trajni disk (Persistent Disk) nije dostupan na besplatnom planu, a bez njega bi se baza brisala kod svakog redeploya.
+5. Nakon prvog uspješnog deploya, otvori **Logs** tab i pronađi ispisanu administratorsku lozinku (isto se sprema i u `ADMIN_PASSWORD.txt` na trajnom disku).
+6. Aplikacija je dostupna na URL-u koji Render dodijeli, npr. `https://evidencija-radnog-vremena.onrender.com` – radi na računalu i mobitelu, bilo gdje s internetskom vezom.
+
+Napomena: ako se u budućnosti frontend hostira na drugoj domeni odvojeno od backenda, potrebno je postaviti env varijablu `ALLOWED_ORIGIN` na backendu (npr. `ALLOWED_ORIGIN=https://moja-domena.com`) da CORS dopusti tu domenu.
+
 ## Mogući kasniji deployment
 
 Aplikacija se kasnije može containerizirati i postaviti online, primjerice pomoću:

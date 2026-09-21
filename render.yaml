@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: evidencija-radnog-vremena
+    runtime: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm install --prefix server && npm install --prefix client && npm run build --prefix client
+    startCommand: npm start --prefix server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATA_DIR
+        value: /var/data
+    disk:
+      name: evidencija-data
+      mountPath: /var/data
+      sizeGB: 1

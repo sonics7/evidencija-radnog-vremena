@@ -13,12 +13,19 @@ const PDFDocument = require('pdfkit');
 const app = express();
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || 'lokalni-dev-secret-promijeni-u-produkciji';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const AUTH_COOKIE = 'erv_token';
 const TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
-const dataDir = path.join(__dirname, 'data');
+if (IS_PRODUCTION) {
+  // Render stavlja aplikaciju iza svog reverse proxyja - potrebno da
+  // express ispravno prepozna HTTPS i postavi "secure" kolačić.
+  app.set('trust proxy', 1);
+}
+
+const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
 const dbPath = path.join(dataDir, 'app.db');
-const adminPasswordPath = path.join(__dirname, 'ADMIN_PASSWORD.txt');
+const adminPasswordPath = path.join(dataDir, 'ADMIN_PASSWORD.txt');
 const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 
 fs.mkdirSync(dataDir, { recursive: true });
@@ -300,7 +307,7 @@ function setAuthCookie(res, token) {
   res.cookie(AUTH_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false,
+    secure: IS_PRODUCTION,
     maxAge: TOKEN_MAX_AGE
   });
 }
@@ -309,7 +316,7 @@ function clearAuthCookie(res) {
   res.clearCookie(AUTH_COOKIE, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false
+    secure: IS_PRODUCTION
   });
 }
 
@@ -475,6 +482,9 @@ function normalizeEntryPayload(body) {
 app.use(cors({
   origin(origin, callback) {
     const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+    if (process.env.ALLOWED_ORIGIN) {
+      allowedOrigins.push(process.env.ALLOWED_ORIGIN);
+    }
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
