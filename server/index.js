@@ -6,7 +6,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 
@@ -30,12 +30,26 @@ const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 
 fs.mkdirSync(dataDir, { recursive: true });
 
-const db = new Database(dbPath);
+const db = new DatabaseSync(dbPath);
 // WAL nacin rada koristi mmap/shared-memory datoteke koje na nekim
 // kontejnerskim/mreznim datotecnim sustavima (npr. Railway) uzrokuju
 // segfault, pa koristimo standardni (kompatibilniji) "delete" nacin rada.
-db.pragma('journal_mode = DELETE');
-db.pragma('foreign_keys = ON');
+db.exec('PRAGMA journal_mode = DELETE');
+db.exec('PRAGMA foreign_keys = ON');
+
+// node:sqlite (za razliku od better-sqlite3) nema ugradjenu .transaction()
+// metodu, pa koristimo jednostavan BEGIN/COMMIT/ROLLBACK wrapper.
+function runInTransaction(fn) {
+  db.exec('BEGIN');
+  try {
+    const result = fn();
+    db.exec('COMMIT');
+    return result;
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  }
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -162,13 +176,11 @@ const insertHoliday = db.prepare(`
   ON CONFLICT(date) DO UPDATE SET name = excluded.name
 `);
 
-const seedHolidayTransaction = db.transaction((holidays) => {
-  for (const holiday of holidays) {
+runInTransaction(() => {
+  for (const holiday of seedHolidays) {
     insertHoliday.run(holiday[0], holiday[1]);
   }
 });
-
-seedHolidayTransaction(seedHolidays);
 
 function generateStrongPassword(length = 16) {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
@@ -672,11 +684,10 @@ app.delete('/api/users/:id', authRequired, adminRequired, (req, res) => {
     }
   }
 
-  const deleteUserTransaction = db.transaction((id) => {
-    db.prepare(`DELETE FROM time_entries WHERE user_id = ?`).run(id);
-    db.prepare(`DELETE FROM users WHERE id = ?`).run(id);
+  runInTransaction(() => {
+    db.prepare(`DELETE FROM time_entries WHERE user_id = ?`).run(userId);
+    db.prepare(`DELETE FROM users WHERE id = ?`).run(userId);
   });
-  deleteUserTransaction(userId);
 
   return res.json({ message: `Korisnik ${user.username} je izbrisan.` });
 });
@@ -1189,7 +1200,7 @@ app.post('/api/time-entries/godisnji-range', authRequired, (req, res) => {
   `);
 
   const createdDates = [];
-  const transaction = db.transaction(() => {
+  runInTransaction(() => {
     const current = new Date(fromDate + 'T00:00:00');
     const end = new Date(toDate + 'T00:00:00');
     while (current <= end) {
@@ -1204,8 +1215,6 @@ app.post('/api/time-entries/godisnji-range', authRequired, (req, res) => {
       current.setDate(current.getDate() + 1);
     }
   });
-
-  transaction();
   return res.json({
     message: `Godišnji odmor je spremljen za ${createdDates.length} radnih dana.`,
     dates: createdDates

@@ -2,7 +2,7 @@
   "name": "evidencija-radnog-vremena",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=22.5"
   },
   "scripts": {
     "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
