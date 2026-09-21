@@ -494,19 +494,27 @@ function normalizeEntryPayload(body) {
   };
 }
 
-app.use(cors({
-  origin(origin, callback) {
-    const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
-    if (process.env.ALLOWED_ORIGIN) {
-      allowedOrigins.push(process.env.ALLOWED_ORIGIN);
+app.use(cors((req, callback) => {
+  const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+  if (process.env.ALLOWED_ORIGIN) {
+    allowedOrigins.push(process.env.ALLOWED_ORIGIN);
+  }
+
+  const origin = req.header('Origin');
+  let isSameOrigin = false;
+  if (origin) {
+    try {
+      // Frontend i backend se u produkciji serviraju s iste domene (npr. Railway),
+      // pa automatski dopustamo zahtjeve ciji "Origin" odgovara domeni na koju je
+      // sam zahtjev poslan - bez potrebe za rucnim postavljanjem ALLOWED_ORIGIN.
+      isSameOrigin = new URL(origin).host === req.get('host');
+    } catch (error) {
+      isSameOrigin = false;
     }
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-      return;
-    }
-    callback(new Error('Origin nije dopušten.'));
-  },
-  credentials: true
+  }
+
+  const allowed = !origin || isSameOrigin || allowedOrigins.includes(origin);
+  callback(null, { origin: allowed, credentials: true });
 }));
 app.use(express.json());
 app.use(cookieParser());
