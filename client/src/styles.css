@@ -846,6 +846,34 @@ td {
     flex: 1;
   }
 
+  .mobile-menu-user-select {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .mobile-menu .selected-user-card {
+    min-width: 0;
+  }
+
+  .month-nav-label {
+    display: none;
+  }
+
+  .month-nav {
+    gap: 0.5rem;
+  }
+
+  .month-nav h2 {
+    font-size: 1rem;
+    text-align: center;
+    flex: 1;
+  }
+
+  .toolbar-side {
+    display: none;
+  }
+
   .time-grid,
   .range-grid {
     grid-template-columns: 1fr;

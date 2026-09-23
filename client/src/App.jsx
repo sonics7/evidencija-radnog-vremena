@@ -862,6 +862,18 @@ export default function App() {
           </button>
           <button type="button" className="ghost" onClick={() => { setProfileModalOpen(true); setMobileMenuOpen(false); }}>Moj profil</button>
           <button type="button" className="ghost" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>Odjava</button>
+          {user.role === 'admin' && (
+            <label className="mobile-menu-user-select">
+              Pregled korisnika
+              <select value={selectedUserId} onChange={(event) => setSelectedUserId(event.target.value)}>
+                {users.map((item) => <option key={item.id} value={item.id}>{item.full_name} ({item.username})</option>)}
+              </select>
+            </label>
+          )}
+          <div className="selected-user-card">
+            <span className="muted small">Aktivni prikaz</span>
+            <strong>{selectedUser?.full_name || user.full_name}</strong>
+          </div>
         </div>
       )}
 
@@ -869,9 +881,13 @@ export default function App() {
         <main className="content-stack">
           <section className="toolbar panel">
             <div className="month-nav">
-              <button type="button" className="ghost" onClick={() => setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}>← Prošli mjesec</button>
+              <button type="button" className="ghost" aria-label="Prošli mjesec" title="Prošli mjesec" onClick={() => setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}>
+                <span aria-hidden="true">←</span><span className="month-nav-label"> Prošli mjesec</span>
+              </button>
               <h2>{formatMonthTitle(viewDate)}</h2>
-              <button type="button" className="ghost" onClick={() => setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}>Sljedeći mjesec →</button>
+              <button type="button" className="ghost" aria-label="Sljedeći mjesec" title="Sljedeći mjesec" onClick={() => setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}>
+                <span className="month-nav-label">Sljedeći mjesec </span><span aria-hidden="true">→</span>
+              </button>
             </div>
             <div className="toolbar-side">
               {user.role === 'admin' && (
