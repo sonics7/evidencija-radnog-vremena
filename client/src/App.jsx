@@ -54,6 +54,10 @@ function formatMinutes(minutes) {
   return `${sign}${hours}:${pad(mins)}`;
 }
 
+function formatDays(count) {
+  return `${count} ${count === 1 ? 'dan' : 'dana'}`;
+}
+
 function isWeekend(date) {
   const day = date.getDay();
   return day === 0 || day === 6;
@@ -967,11 +971,11 @@ export default function App() {
           </section>
 
           <section className="summary-grid">
-            <div className="summary-card panel"><span className="muted small">Ukupno radni sati</span><strong>{formatMinutes(monthlySummary.workedMinutes)}</strong></div>
-            <div className="summary-card panel"><span className="muted small">Korišteni godišnji</span><strong>{monthlySummary.vacationDays} dana</strong></div>
-            <div className="summary-card panel"><span className="muted small">Korišteno HO</span><strong>{monthlySummary.homeOfficeDays} dana</strong></div>
+            <div className="summary-card panel"><span className="muted small">Korišteni godišnji</span><strong>{formatDays(monthlySummary.vacationDays)}</strong></div>
+            <div className="summary-card panel"><span className="muted small">Korišteno HO</span><strong>{formatDays(monthlySummary.homeOfficeDays)}</strong></div>
+            <div className="summary-card panel"><span className="muted small">Ukupni broj sati</span><strong>{formatMinutes(monthlySummary.workedMinutes)}</strong></div>
             <div className="summary-card panel"><span className="muted small">Mjesečni fond sati</span><strong>{formatMinutes(monthlySummary.fundMinutes)}</strong></div>
-            <div className="summary-card panel"><span className="muted small">Razlika (upisano - fond)</span><strong className={monthlySummary.diffMinutes < 0 ? 'negative' : 'positive'}>{formatMinutes(monthlySummary.diffMinutes)}</strong></div>
+            <div className="summary-card panel summary-card-full"><span className="muted small">Razlika (upisano - fond)</span><strong className={monthlySummary.diffMinutes < 0 ? 'negative' : 'positive'}>{formatMinutes(monthlySummary.diffMinutes)}</strong></div>
           </section>
         </main>
       ) : (

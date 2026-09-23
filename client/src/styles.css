@@ -879,6 +879,14 @@ td {
     grid-template-columns: 1fr;
   }
 
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary-card-full {
+    grid-column: 1 / -1;
+  }
+
   .auth-card,
   .panel,
   .modal-card {
