@@ -252,7 +252,7 @@ function timeToMinutes(value) {
 }
 
 function calculateWorkedMinutes(entry) {
-  if (!entry || !['radni', 'home_office', 'sluzbeni_put', 'drzavni_praznik'].includes(entry.tip)) {
+  if (!entry || !['radni', 'home_office', 'sluzbeni_put', 'drzavni_praznik', 'godisnji'].includes(entry.tip)) {
     return 0;
   }
   if (!entry.dolazak || !entry.odlazak) {
@@ -417,18 +417,7 @@ function normalizeEntryPayload(body) {
 
   const napomena = typeof body.napomena === 'string' ? body.napomena.trim() : null;
 
-  if (tip === 'godisnji') {
-    return {
-      tip,
-      dolazak: null,
-      odlazak: null,
-      pauza_odlazak: null,
-      pauza_povratak: null,
-      napomena: napomena || null
-    };
-  }
-
-  if (tip === 'home_office' || tip === 'sluzbeni_put') {
+  if (tip === 'home_office' || tip === 'sluzbeni_put' || tip === 'godisnji') {
     return {
       tip,
       dolazak: '08:00',
@@ -1163,10 +1152,10 @@ app.post('/api/time-entries/godisnji-range', authRequired, (req, res) => {
   const upsertVacation = db.prepare(`
     INSERT INTO time_entries (
       user_id, date, dolazak, odlazak, pauza_odlazak, pauza_povratak, tip, napomena, created_at, updated_at
-    ) VALUES (?, ?, NULL, NULL, NULL, NULL, 'godisnji', ?, datetime('now'), datetime('now'))
+    ) VALUES (?, ?, '08:00', '16:00', NULL, NULL, 'godisnji', ?, datetime('now'), datetime('now'))
     ON CONFLICT(user_id, date) DO UPDATE SET
-      dolazak = NULL,
-      odlazak = NULL,
+      dolazak = '08:00',
+      odlazak = '16:00',
       pauza_odlazak = NULL,
       pauza_povratak = NULL,
       tip = 'godisnji',

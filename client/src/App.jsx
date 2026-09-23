@@ -31,7 +31,7 @@ function timeToMinutes(value) {
 }
 
 function calculateWorkedMinutes(entry) {
-  if (!entry || !['radni', 'home_office', 'sluzbeni_put', 'drzavni_praznik'].includes(entry.tip)) {
+  if (!entry || !['radni', 'home_office', 'sluzbeni_put', 'drzavni_praznik', 'godisnji'].includes(entry.tip)) {
     return 0;
   }
   if (!entry.dolazak || !entry.odlazak) {
@@ -198,11 +198,8 @@ function DayModal({ date, entry, onClose, onSave, onDelete, selectedUser, saving
   }));
 
   useEffect(() => {
-    if (['home_office', 'sluzbeni_put'].includes(form.tip)) {
+    if (['home_office', 'sluzbeni_put', 'godisnji'].includes(form.tip)) {
       setForm((prev) => ({ ...prev, dolazak: '08:00', odlazak: '16:00', pauza_odlazak: '', pauza_povratak: '' }));
-    }
-    if (form.tip === 'godisnji') {
-      setForm((prev) => ({ ...prev, dolazak: '', odlazak: '', pauza_odlazak: '', pauza_povratak: '' }));
     }
   }, [form.tip]);
 
@@ -917,7 +914,7 @@ export default function App() {
             {legendOpen && (
               <div className="legend">
                 <span><strong>Radni sati</strong> = radni dan + home office + službeni put + državni praznik</span>
-                <span><strong>GO</strong> = godišnji odmor (računa se posebno kao 1 dan)</span>
+                <span><strong>GO</strong> = godišnji odmor, automatski 08:00–16:00 (računa se kao 8 radnih sati)</span>
                 <span><strong>HO</strong> = home office, automatski 08:00–16:00</span>
                 <span><strong>SP</strong> = službeni put, automatski 08:00–16:00</span>
                 <span><strong>DP</strong> = državni praznik (rad), automatski 08:00–16:00</span>
@@ -958,7 +955,7 @@ export default function App() {
                         {holiday && <div className="holiday-name">{holiday.name}</div>}
                         {entry ? (
                           <div className="entry-preview">
-                            {entry.tip === 'godisnji' ? <div className="status-box go">GO</div> : entry.tip === 'home_office' ? <><div className="status-box ho">HO</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : entry.tip === 'sluzbeni_put' ? <><div className="status-box sp">SP</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : entry.tip === 'drzavni_praznik' ? <><div className="status-box dp">DP</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : <><div className="mini-line">{entry.dolazak} - {entry.odlazak}</div>{entry.pauza_odlazak && entry.pauza_povratak && <div className="mini-line">Pauza {entry.pauza_odlazak} - {entry.pauza_povratak}</div>}<div className="mini-line strong">{formatMinutes(workedMinutes)}</div></>}
+                            {entry.tip === 'godisnji' ? <><div className="status-box go">GO</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : entry.tip === 'home_office' ? <><div className="status-box ho">HO</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : entry.tip === 'sluzbeni_put' ? <><div className="status-box sp">SP</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : entry.tip === 'drzavni_praznik' ? <><div className="status-box dp">DP</div><div className="mini-line">08:00 - 16:00</div><div className="mini-line strong">{formatMinutes(workedMinutes)}</div></> : <><div className="mini-line">{entry.dolazak} - {entry.odlazak}</div>{entry.pauza_odlazak && entry.pauza_povratak && <div className="mini-line">Pauza {entry.pauza_odlazak} - {entry.pauza_povratak}</div>}<div className="mini-line strong">{formatMinutes(workedMinutes)}</div></>}
                           </div>
                         ) : <div className="empty-note">Klik za unos</div>}
                       </button>
