@@ -879,6 +879,15 @@ td {
     grid-template-columns: 1fr;
   }
 
+  .topbar h1 {
+    font-size: 1.15rem;
+    white-space: nowrap;
+  }
+
+  .logged-in-user {
+    display: none;
+  }
+
   .summary-grid {
     grid-template-columns: 1fr 1fr;
   }

@@ -830,7 +830,7 @@ export default function App() {
       <header className="topbar">
         <div>
           <h1>Evidencija radnog vremena</h1>
-          <p className="muted">Prijavljeni korisnik: <strong>{user.full_name}</strong> ({user.username})</p>
+          <p className="muted logged-in-user">Prijavljeni korisnik: <strong>{user.full_name}</strong> ({user.username})</p>
         </div>
         <div className="topbar-actions">
           {user.role === 'admin' && SHOW_ADMIN_TAB && (
