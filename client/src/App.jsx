@@ -286,7 +286,7 @@ function DayModal({ date, entry, onClose, onSave, onDelete, selectedUser, saving
             <textarea rows="3" value={form.napomena} onChange={(event) => setForm((prev) => ({ ...prev, napomena: event.target.value }))} placeholder="Opcionalna napomena" />
           </label>
           <div className="modal-actions">
-            {entry && !isAutoHoliday ? <button type="button" className="danger ghost" onClick={onDelete} disabled={saving}>Obriši unos</button> : <span />}
+            {entry && !isAutoHoliday ? <button type="button" className="danger ghost" onClick={onDelete} disabled={saving}>Obriši</button> : <span />}
             <div className="action-group">
               <button type="button" className="ghost" onClick={onClose} disabled={saving}>Odustani</button>
               <button type="submit" className="primary" disabled={saving}>{saving ? 'Spremanje...' : 'Spremi'}</button>
